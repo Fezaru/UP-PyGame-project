@@ -1,6 +1,9 @@
 from tkinter import *
 
 
+# Тест коммент
+
+
 class Menu(Toplevel):
     def __init__(self, **kw):
         super().__init__(**kw)
