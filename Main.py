@@ -1,9 +1,5 @@
 from tkinter import *
 import Menu_class
-import Game_class
-
-
-
 
 
 if __name__ == '__main__':

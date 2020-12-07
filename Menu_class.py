@@ -1,5 +1,6 @@
 from tkinter import *
 from Settings_class import Settings
+import Game_class
 
 
 class Menu(Toplevel):
@@ -12,10 +13,13 @@ class Menu(Toplevel):
         def nastroiki():
             Settings()
 
+        def igrat():
+            Game_class.Game((300, 300)) # Пока что 6x6, потом добавить настройку этого
+
         self.title('Меню')
         self.geometry('600x500')
         self.resizable(False, False)
-        self.play = Button(self, text='Играть', justify=CENTER, font='Tahoma 24', width=26)
+        self.play = Button(self, text='Играть', justify=CENTER, font='Tahoma 24', width=26, command=igrat)
         self.play.place(relx=0.1, rely=0.1)
 
         self.settings = Button(self, text='Настройки', justify=CENTER, font='Tahoma 24', width=26, command=nastroiki)
