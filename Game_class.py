@@ -1,3 +1,4 @@
+import Menu_class
 import pygame
 successes, failures = pygame.init()
 print("{0} successes and {1} failures".format(successes, failures))
@@ -17,6 +18,10 @@ class Player(pygame.sprite.Sprite):
         self.screen.blit(self.image, self.rect)
 
 
+class Wall(pygame.sprite.Sprite):
+    pass
+
+
 class Game:
     def __init__(self, size):
         screen = pygame.display.set_mode(size)
@@ -24,7 +29,7 @@ class Game:
         FPS = 60
         BLACK = (0, 0, 0)
         WHITE = (255, 255, 255)
-        BACKGROUND = pygame.image.load('images for spidergame//images//gameBG.png') # тут будет другой бг
+        BACKGROUND = pygame.image.load('images for spidergame//images//gameBGfilled.png') # тут будет другой бг
 
         pavuk = Player((0, 0), (50, 50), WHITE, screen)
 
@@ -33,7 +38,8 @@ class Game:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    quit()
+                    Menu_class.Menu()
+                    pygame.display.quit()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_w:
                         pavuk.move(0, -50)
