@@ -21,8 +21,8 @@ class Menu(Toplevel):
         self.geometry('600x500')
         self.resizable(False, False)
 
-        self.background_image = PhotoImage(file=r'F:\UP-PyGame-project\images for spidergame\images\menuBG.png')
-        self.background_fil = PhotoImage(file=r'F:\UP-PyGame-project\images for spidergame\images\gameBGfilled.png')
+        self.background_image = PhotoImage(file=r'images for spidergame/images/menuBG.png')
+        self.background_fil = PhotoImage(file=r'images for spidergame/images/gameBGfilled.png')
 
         background_label = Label(self, image=self.background_image)
         background_label.place(x=0, y=0, relwidth=1, relheight=1)
