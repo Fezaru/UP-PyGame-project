@@ -1,9 +1,31 @@
 import Menu_class
 import pygame
+
 import random
 
-SIZE = None  # возможно потом это будет в сериализованном файле
 bonus = None
+SIZE = None  # возможно потом это будет в сериализованном файле
+
+
+def init_fences(screen):
+    global SIZE
+    n = SIZE[0]//50
+    lines = []
+    fences = []
+    with open('Map1', 'r') as f:
+        for i in range(n):
+            lines.append(f.readline().strip('\n'))
+    print(lines)
+    coords = [[] for i in range(n)]
+    for i in range(n):
+        coords[i] = lines[i].split()
+    print(coords)
+    for i in range(n):
+        for j in range(len(coords[i])):
+            if coords[j][i] == '1':
+                fences.append(Wall((i*50, j*50), (50, 50), screen))
+    print(fences)
+    return fences
 
 
 def init_walls(screen):
@@ -13,7 +35,7 @@ def init_walls(screen):
     wall1.draw()
     wall2 = Wall((-50, y_length), (x_length + 50, 50), screen)  # нижняя стенка
     wall2.draw()
-    wall3 = Wall((-50, 0), (50, y_length), screen)  # левая стенка
+    wall3 = Wall((-50, 0), (50, y_length), screen)    # левая стенка
     wall3.draw()
     wall4 = Wall((x_length, 0), (50, y_length), screen)
     wall4.draw()
@@ -74,7 +96,10 @@ class Game:
         BACKGROUND = pygame.image.load('images for spidergame//images//gameBGfilled.png')
 
         pavuk = Player((0, 0), (50, 50), screen)
+
         walls = init_walls(screen)
+        fences = init_fences(screen)
+
         # bonus = Bonus((50, 50), screen)
         bonusStep = 0
         while True:
@@ -106,6 +131,8 @@ class Game:
                     elif event.key == pygame.K_d:
                         pavuk.move(50, 0)
 
+            for fence in fences:
+                fence.draw()
             if bonus is not None:
                 bonus.draw()
                 if pavuk.rect.colliderect(bonus.rect):
