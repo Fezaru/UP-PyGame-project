@@ -1,6 +1,28 @@
 import Menu_class
 import pygame
+
 SIZE = None  # возможно потом это будет в сериализованном файле
+
+
+def init_fences(screen):
+    global SIZE
+    n = SIZE[0]//50
+    lines = []
+    fences = []
+    with open('Map1', 'r') as f:
+        for i in range(n):
+            lines.append(f.readline().strip('\n'))
+    print(lines)
+    coords = [[] for i in range(n)]
+    for i in range(n):
+        coords[i] = lines[i].split()
+    print(coords)
+    for i in range(n):
+        for j in range(len(coords[i])):
+            if coords[j][i] == '1':
+                fences.append(Wall((i*50, j*50), (50, 50), screen))
+    print(fences)
+    return fences
 
 
 def init_walls(screen):
@@ -52,7 +74,9 @@ class Game:
         BACKGROUND = pygame.image.load('images for spidergame//images//gameBGfilled.png')
 
         pavuk = Player((0, 0), (50, 50), screen)
+
         walls = init_walls(screen)
+        fences = init_fences(screen)
 
         while True:
             screen.blit(BACKGROUND, (0, 0))
@@ -80,6 +104,8 @@ class Game:
                     elif event.key == pygame.K_d:
                         pavuk.move(50, 0)
 
+            for fence in fences:
+                fence.draw()
             pavuk.draw()
             clock.tick(FPS)
             pygame.display.update()  # Or pygame.display.flip()
