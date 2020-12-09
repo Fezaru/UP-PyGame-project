@@ -1,6 +1,9 @@
 import Menu_class
 import pygame
+import random
+
 SIZE = None  # возможно потом это будет в сериализованном файле
+bonus = None
 
 
 def init_walls(screen):
@@ -10,7 +13,7 @@ def init_walls(screen):
     wall1.draw()
     wall2 = Wall((-50, y_length), (x_length + 50, 50), screen)  # нижняя стенка
     wall2.draw()
-    wall3 = Wall((-50, 0), (50, y_length), screen)    # левая стенка
+    wall3 = Wall((-50, 0), (50, y_length), screen)  # левая стенка
     wall3.draw()
     wall4 = Wall((x_length, 0), (50, y_length), screen)
     wall4.draw()
@@ -23,12 +26,19 @@ class Player(pygame.sprite.Sprite):
         self.rect = pygame.Rect(xy0, sizes)  # First tuple is position, second is size.
         self.image = pygame.image.load('images for spidergame//images//spider.png')
         self.screen = screen  # передаю экран чтобы в функции draw на нем отображать
+        self.__bonuses = 0
 
     def move(self, x, y):
         self.rect.move_ip(x, y)
 
     def draw(self):
         self.screen.blit(self.image, self.rect)
+
+    def addBonus(self):
+        self.__bonuses += 1
+
+    def getBonuses(self):
+        return self.__bonuses
 
 
 class Wall(pygame.sprite.Sprite):
@@ -42,8 +52,20 @@ class Wall(pygame.sprite.Sprite):
         self.screen.blit(self.image, self.rect)
 
 
+class Bonus(pygame.sprite.Sprite):
+    def __init__(self, xy0: tuple, sizes: tuple, screen):
+        pygame.sprite.Sprite.__init__(self)
+        self.rect = pygame.Rect(xy0, sizes)  # First tuple is position, second is size.
+        self.image = pygame.image.load('images for spidergame//images//barrel.png')
+        self.screen = screen  # передаю экран чтобы в функции draw на нем отображать
+
+    def draw(self):
+        self.screen.blit(self.image, self.rect)
+
+
 class Game:
     def __init__(self, size):
+        global bonus
         global SIZE
         SIZE = size
         screen = pygame.display.set_mode(size)
@@ -53,10 +75,13 @@ class Game:
 
         pavuk = Player((0, 0), (50, 50), screen)
         walls = init_walls(screen)
-
+        # bonus = Bonus((50, 50), screen)
+        bonusStep = 0
         while True:
             screen.blit(BACKGROUND, (0, 0))
-            
+
+            pavukpos = pavuk.rect.copy()
+
             if pavuk.rect.colliderect(walls[0]):
                 pavuk.move(0, 50)
             if pavuk.rect.colliderect(walls[1]):
@@ -71,6 +96,7 @@ class Game:
                     Menu_class.Menu()
                     pygame.display.quit()
                 elif event.type == pygame.KEYDOWN:
+                    print(bonusStep)
                     if event.key == pygame.K_w:
                         pavuk.move(0, -50)
                     elif event.key == pygame.K_s:
@@ -80,6 +106,20 @@ class Game:
                     elif event.key == pygame.K_d:
                         pavuk.move(50, 0)
 
+            if bonus is not None:
+                bonus.draw()
+                if pavuk.rect.colliderect(bonus.rect):
+                    pavuk.addBonus()
+                    print(pavuk.getBonuses())
+                    bonus = None
+            else:
+                if pavuk.rect.colliderect(pavukpos) != 1:
+                    bonusStep += 1
+                if bonusStep == 4:
+                    bonusStep = 0
+                    bonusX = random.randint(0, (SIZE[0] // 50) - 1) * 50
+                    bonusY = random.randint(0, (SIZE[1] // 50) - 1) * 50
+                    bonus = Bonus((bonusX, bonusY), (50, 50), screen)
             pavuk.draw()
             clock.tick(FPS)
             pygame.display.update()  # Or pygame.display.flip()
