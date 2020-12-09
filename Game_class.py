@@ -3,7 +3,7 @@ import pygame
 
 import random
 
-
+bonus = None
 SIZE = None  # возможно потом это будет в сериализованном файле
 
 
