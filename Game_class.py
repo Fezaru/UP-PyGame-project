@@ -15,16 +15,13 @@ def init_fences(screen):
     with open('Map1', 'r') as f:
         for i in range(n):
             lines.append(f.readline().strip('\n'))
-    print(lines)
     coords = [[] for i in range(n)]
     for i in range(n):
         coords[i] = lines[i].split()
-    print(coords)
     for i in range(n):
         for j in range(len(coords[i])):
             if coords[j][i] == '1':
                 fences.append(Wall((i*50, j*50), (50, 50), screen))
-    print(fences)
     return fences
 
 
@@ -58,6 +55,9 @@ class Player(pygame.sprite.Sprite):
 
     def addBonus(self):
         self.__bonuses += 1
+
+    def remove_bonus(self):
+        self.__bonuses -= 1
 
     def getBonuses(self):
         return self.__bonuses
@@ -95,7 +95,7 @@ class Game:
         FPS = 60
         BACKGROUND = pygame.image.load('images for spidergame//images//gameBGfilled.png')
 
-        pavuk = Player((0, 0), (50, 50), screen)
+        pavuk = Player((100, 100), (50, 50), screen)
 
         walls = init_walls(screen)
         fences = init_fences(screen)
@@ -121,15 +121,55 @@ class Game:
                     Menu_class.Menu()
                     pygame.display.quit()
                 elif event.type == pygame.KEYDOWN:
-                    print(bonusStep)
+                    collision = 0
                     if event.key == pygame.K_w:
-                        pavuk.move(0, -50)
-                    elif event.key == pygame.K_s:# обработка врезаний в забор
-                        pavuk.move(0, 50)
+                        temp = pavuk.rect.copy()
+                        temp.move_ip(0, -50)
+                        for fence in fences:
+                            if temp.colliderect(fence) == 1:
+                                if pavuk.getBonuses() > 0:
+                                    fences.remove(fence)
+                                    pavuk.remove_bonus()
+                                else:
+                                    collision = 1
+                        if collision != 1:
+                            pavuk.move(0, -50)
+                    elif event.key == pygame.K_s:
+                        temp = pavuk.rect.copy()
+                        temp.move_ip(0, 50)
+                        for fence in fences:
+                            if temp.colliderect(fence) == 1:
+                                if pavuk.getBonuses() > 0:
+                                    fences.remove(fence)
+                                    pavuk.remove_bonus()
+                                else:
+                                    collision = 1
+                        if collision != 1:
+                            pavuk.move(0, 50)
                     elif event.key == pygame.K_a:
-                        pavuk.move(-50, 0)
+                        temp = pavuk.rect.copy()
+                        temp.move_ip(-50, 0)
+                        for fence in fences:
+                            if temp.colliderect(fence) == 1:
+                                if pavuk.getBonuses() > 0:
+                                    fences.remove(fence)
+                                    pavuk.remove_bonus()
+                                else:
+                                    collision = 1
+                        if collision != 1:
+                            pavuk.move(-50, 0)
                     elif event.key == pygame.K_d:
-                        pavuk.move(50, 0)
+                        temp = pavuk.rect.copy()
+                        temp.move_ip(50, 0)
+                        for fence in fences:
+                            if temp.colliderect(fence) == 1:
+                                if pavuk.getBonuses() > 0:
+                                    fences.remove(fence)
+                                    pavuk.remove_bonus()
+                                else:
+                                    collision = 1
+                        if collision != 1:
+                            pavuk.move(50, 0)
 
             for fence in fences:
                 fence.draw()
