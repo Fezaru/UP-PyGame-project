@@ -109,7 +109,7 @@ class Game:
 
             if pavuk.rect.colliderect(walls[0]):
                 pavuk.move(0, 50)
-            if pavuk.rect.colliderect(walls[1]):
+            if pavuk.rect.colliderect(walls[1]):# движение павука
                 pavuk.move(0, -50)
             if pavuk.rect.colliderect(walls[2]):
                 pavuk.move(50, 0)
@@ -175,7 +175,7 @@ class Game:
                 fence.draw()
             if bonus is not None:
                 bonus.draw()
-                if pavuk.rect.colliderect(bonus.rect):
+                if pavuk.rect.colliderect(bonus.rect):# кушает бонус
                     pavuk.addBonus()
                     print(pavuk.getBonuses())
                     bonus = None
@@ -184,9 +184,20 @@ class Game:
                     bonusStep += 1
                 if bonusStep == 4:
                     bonusStep = 0
-                    bonusX = random.randint(0, (SIZE[0] // 50) - 1) * 50
-                    bonusY = random.randint(0, (SIZE[1] // 50) - 1) * 50
+                    isBonusSpawnOkay = False
+                    while not isBonusSpawnOkay:
+                        bonusX = random.randint(0, (SIZE[0] // 50) - 1) * 50 # спавн бонуса
+                        bonusY = random.randint(0, (SIZE[1] // 50) - 1) * 50
+                        isInFence = False
+                        for fence in fences:
+                            if fence.rect.topleft == (bonusX,bonusY):
+                                isInFence = True
+                        if not isInFence:
+                            isBonusSpawnOkay = True
                     bonus = Bonus((bonusX, bonusY), (50, 50), screen)
+
+
+
             pavuk.draw()
             clock.tick(FPS)
             pygame.display.update()  # Or pygame.display.flip()
