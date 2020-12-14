@@ -64,6 +64,8 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load('images for spidergame//images//spider.png')
         self.screen = screen  # передаю экран чтобы в функции draw на нем отображать
         self.__bonuses = 0
+        self.__lives = 3  # вроде можно в настройках задавать
+        self.live_image = pygame.image.load('images for spidergame//images//lives.png')
 
     def move(self, x, y):
         self.rect.move_ip(x, y)
@@ -79,6 +81,18 @@ class Player(pygame.sprite.Sprite):
 
     def getBonuses(self):
         return self.__bonuses
+
+    def get_lives(self):
+        return self.__lives
+
+    def remove_live(self):
+        self.__lives -= 1
+
+    def draw_lives(self):
+        y = 5
+        x = 25
+        for i in range(0, self.__lives):
+            self.screen.blit(self.live_image, [x*i,y])
 
 
 class Bot(pygame.sprite.Sprite):
@@ -124,6 +138,7 @@ class Wall(pygame.sprite.Sprite):
         self.rect = pygame.Rect(xy0, sizes)  # First tuple is position, second is size.
         self.image = pygame.image.load('images for spidergame//images//fence.png')
         self.screen = screen
+
 
     def draw(self):
         self.screen.blit(self.image, self.rect)
@@ -265,5 +280,6 @@ class Game:
             pavuk.draw()
             bot.draw()
             escape.draw()
+            pavuk.draw_lives()
             clock.tick(FPS)
             pygame.display.update()  # Or pygame.display.flip()
