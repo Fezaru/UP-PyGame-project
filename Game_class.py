@@ -4,6 +4,7 @@ import random
 import tkinter.messagebox
 
 bonus = None
+bomb = None
 SIZE = None  # возможно потом это будет в сериализованном файле
 
 
@@ -45,7 +46,7 @@ class Exit(pygame.sprite.Sprite):
     def __init__(self, xy0: tuple, sizes: tuple, screen):
         pygame.sprite.Sprite.__init__(self)
         self.rect = pygame.Rect(xy0, sizes)  # First tuple is position, second is size.
-        self.image = pygame.image.load('images for spidergame//images//stone.png')
+        self.image = pygame.image.load('images for spidergame//images//exit.png')
         self.screen = screen  # передаю экран чтобы в функции draw на нем отображать
 
     def draw(self):
@@ -125,10 +126,23 @@ class Bonus(pygame.sprite.Sprite):
     def draw(self):
         self.screen.blit(self.image, self.rect)
 
+class Bomb(pygame.sprite.Sprite):
+    def __init__(self, xy0: tuple, sizes: tuple, screen):
+        pygame.sprite.Sprite.__init__(self)
+        self.rect = pygame.Rect(xy0, sizes)  # First tuple is position, second is size.
+        self.image = pygame.image.load('images for spidergame//images//bomb.png')
+        self.screen = screen  # передаю экран чтобы в функции draw на нем отображать
+
+    def draw(self):
+        self.screen.blit(self.image, self.rect)
+
+    def bang(self):
+        self.screen.blit(pygame.image.load('images for spidergame//images//bang.png'), self.rect)
 
 class Game:
     def __init__(self, size):
         global bonus
+        global bomb
         global SIZE
         SIZE = size
         screen = pygame.display.set_mode(size)
@@ -142,6 +156,8 @@ class Game:
 
         # bonus = Bonus((50, 50), screen)
         bonusStep = 0
+        bombStep = 0
+        millisecToBang = 0
         while True:
             screen.blit(BACKGROUND, (0, 0))
 
@@ -214,6 +230,7 @@ class Game:
             if pavuk.rect.colliderect(escape.rect):
                 pygame.display.update()
                 escape.win()
+
             if bonus is not None:
                 bonus.draw()
                 if pavuk.rect.colliderect(bonus.rect):  # кушает бонус
@@ -236,6 +253,33 @@ class Game:
                         if not isInFence:
                             isBonusSpawnOkay = True
                     bonus = Bonus((bonusX, bonusY), (50, 50), screen)
+
+            if bomb is not None:
+                bomb.draw()
+                millisecToBang+=0.0166
+                if 0.7 < millisecToBang < 1:
+                    bomb.bang()
+                if millisecToBang>=1: # взрыв бомбы
+                    bomb.bang()
+                    bombStep = 0;
+                    millisecToBang = 0;
+                    bomb = None
+            else:
+                if pavuk.rect.colliderect(pavukpos) != 1:
+                    bombStep += 1
+                if bombStep == 3:
+                    bombStep = 0
+                    isBombSpawnOkay = False
+                    while not isBombSpawnOkay:
+                        bombX = random.randint(0, (SIZE[0] // 50) - 1) * 50  # спавн бомбы
+                        bombY = random.randint(0, (SIZE[1] // 50) - 1) * 50
+                        isInFence = False
+                        for fence in fences:
+                            if fence.rect.topleft == (bombX, bombY):
+                                isInFence = True
+                        if not isInFence:
+                            isBombSpawnOkay = True
+                    bomb = Bomb((bombX, bombY), (50, 50), screen)
 
             for fence in fences:
                 fence.draw()
