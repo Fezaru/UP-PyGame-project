@@ -1,7 +1,7 @@
 import Menu_class
 import pygame
-
 import random
+import tkinter.messagebox
 
 bonus = None
 SIZE = None  # возможно потом это будет в сериализованном файле
@@ -9,7 +9,7 @@ SIZE = None  # возможно потом это будет в сериализ
 
 def init_fences(screen):
     global SIZE
-    n = SIZE[0]//50
+    n = SIZE[0] // 50
     lines = []
     fences = []
     with open('Map1', 'r') as f:
@@ -21,8 +21,10 @@ def init_fences(screen):
     for i in range(n):
         for j in range(len(coords[i])):
             if coords[j][i] == '1':
-                fences.append(Wall((i*50, j*50), (50, 50), screen))
-    return fences
+                fences.append(Wall((i * 50, j * 50), (50, 50), screen))
+            if coords[j][i] == '2':
+                exit = Exit((i * 50, j * 50), (50, 50), screen)
+    return fences, exit
 
 
 def init_walls(screen):
@@ -32,11 +34,35 @@ def init_walls(screen):
     wall1.draw()
     wall2 = Wall((-50, y_length), (x_length + 50, 50), screen)  # нижняя стенка
     wall2.draw()
-    wall3 = Wall((-50, 0), (50, y_length), screen)    # левая стенка
+    wall3 = Wall((-50, 0), (50, y_length), screen)  # левая стенка
     wall3.draw()
     wall4 = Wall((x_length, 0), (50, y_length), screen)
     wall4.draw()
     return wall1, wall2, wall3, wall4  # возвращает кортеж стенок (wall1, wall2, wall3, wall4)
+
+
+class Exit(pygame.sprite.Sprite):
+    def __init__(self, xy0: tuple, sizes: tuple, screen):
+        pygame.sprite.Sprite.__init__(self)
+        self.rect = pygame.Rect(xy0, sizes)  # First tuple is position, second is size.
+        self.image = pygame.image.load('images for spidergame//images//stone.png')
+        self.screen = screen  # передаю экран чтобы в функции draw на нем отображать
+
+    def draw(self):
+        self.screen.blit(self.image, self.rect)
+
+    def win(self):
+        tkinter.messagebox.showinfo('Победа!', 'Вы выиграли')
+        Menu_class.Menu()
+        pygame.quit()
+
+
+class Bot(pygame.sprite.Sprite):
+    def __init__(self, xy0: tuple, sizes: tuple, screen):
+        pygame.sprite.Sprite.__init__(self)
+        self.rect = pygame.Rect(xy0, sizes)  # First tuple is position, second is size.
+        self.image = pygame.image.load('images for spidergame//images//bot.png')
+        self.screen = screen  # передаю экран чтобы в функции draw на нем отображать
 
 
 class Player(pygame.sprite.Sprite):
@@ -110,10 +136,9 @@ class Game:
         FPS = 60
         BACKGROUND = pygame.image.load('images for spidergame//images//gameBGfilled.png')
 
-        pavuk = Player((100, 100), (50, 50), screen)
-
+        pavuk = Player((150, 150), (50, 50), screen)
         walls = init_walls(screen)
-        fences = init_fences(screen)
+        fences, escape = init_fences(screen)
 
         # bonus = Bonus((50, 50), screen)
         bonusStep = 0
@@ -124,7 +149,7 @@ class Game:
 
             if pavuk.rect.colliderect(walls[0]):
                 pavuk.move(0, 50)
-            if pavuk.rect.colliderect(walls[1]):# движение павука
+            if pavuk.rect.colliderect(walls[1]):
                 pavuk.move(0, -50)
             if pavuk.rect.colliderect(walls[2]):
                 pavuk.move(50, 0)
@@ -186,11 +211,12 @@ class Game:
                         if collision != 1:
                             pavuk.move(50, 0)
 
-            for fence in fences:
-                fence.draw()
+            if pavuk.rect.colliderect(escape.rect):
+                pygame.display.update()
+                escape.win()
             if bonus is not None:
                 bonus.draw()
-                if pavuk.rect.colliderect(bonus.rect):# кушает бонус
+                if pavuk.rect.colliderect(bonus.rect):  # кушает бонус
                     pavuk.addBonus()
                     print(pavuk.getBonuses())
                     bonus = None
@@ -201,19 +227,20 @@ class Game:
                     bonusStep = 0
                     isBonusSpawnOkay = False
                     while not isBonusSpawnOkay:
-                        bonusX = random.randint(0, (SIZE[0] // 50) - 1) * 50 # спавн бонуса
+                        bonusX = random.randint(0, (SIZE[0] // 50) - 1) * 50  # спавн бонуса
                         bonusY = random.randint(0, (SIZE[1] // 50) - 1) * 50
                         isInFence = False
                         for fence in fences:
-                            if fence.rect.topleft == (bonusX,bonusY):
+                            if fence.rect.topleft == (bonusX, bonusY):
                                 isInFence = True
                         if not isInFence:
                             isBonusSpawnOkay = True
                     bonus = Bonus((bonusX, bonusY), (50, 50), screen)
 
-
-
+            for fence in fences:
+                fence.draw()
             pavuk.draw()
+            escape.draw()
             pavuk.draw_lives()
             clock.tick(FPS)
             pygame.display.update()  # Or pygame.display.flip()
