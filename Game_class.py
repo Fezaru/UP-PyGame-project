@@ -56,6 +56,10 @@ class Exit(pygame.sprite.Sprite):
         Menu_class.Menu()
         pygame.quit()
 
+    def loss(self):
+        tkinter.messagebox.showinfo('Поражение', 'Вы проиграли')
+
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, xy0: tuple, sizes: tuple, screen):
@@ -85,8 +89,10 @@ class Player(pygame.sprite.Sprite):
     def get_lives(self):
         return self.__lives
 
-    def remove_live(self):
-        self.__lives -= 1
+    def remove_live(self, damage):
+        self.__lives -= damage
+        if self.__lives < 0:
+            self.__lives = 0
 
     def draw_lives(self):
         y = 5
@@ -139,7 +145,6 @@ class Wall(pygame.sprite.Sprite):
         self.image = pygame.image.load('images for spidergame//images//fence.png')
         self.screen = screen
 
-
     def draw(self):
         self.screen.blit(self.image, self.rect)
 
@@ -172,8 +177,10 @@ class Game:
 
         # bonus = Bonus((50, 50), screen)
         bonusStep = 0
+        
         start_ticks = pygame.time.get_ticks()
         timer = 1
+        damage = 1
         while True:
             screen.blit(BACKGROUND, (0, 0))
 
@@ -252,6 +259,14 @@ class Game:
             if pavuk.rect.colliderect(escape.rect):
                 pygame.display.update()
                 escape.win()
+
+            if pavuk.rect.colliderect(bot.rect):
+                pavuk.remove_live(damage)
+                if bot.rect.x >= 50:
+                    bot.move(-50, 0)
+                else:
+                    bot.move(50, 0)
+
             if bonus is not None:
                 bonus.draw()
                 if pavuk.rect.colliderect(bonus.rect):  # кушает бонус
@@ -281,5 +296,10 @@ class Game:
             bot.draw()
             escape.draw()
             pavuk.draw_lives()
+
+            if pavuk.get_lives() == 0:
+                pygame.display.update()
+                escape.loss()
+
             clock.tick(FPS)
             pygame.display.update()  # Or pygame.display.flip()
