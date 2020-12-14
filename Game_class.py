@@ -59,7 +59,8 @@ class Exit(pygame.sprite.Sprite):
 
     def loss(self):
         tkinter.messagebox.showinfo('Поражение', 'Вы проиграли')
-
+        Menu_class.Menu()
+        pygame.quit()
 
 
 class Player(pygame.sprite.Sprite):
@@ -160,6 +161,7 @@ class Bonus(pygame.sprite.Sprite):
     def draw(self):
         self.screen.blit(self.image, self.rect)
 
+
 class Bomb(pygame.sprite.Sprite):
     def __init__(self, xy0: tuple, sizes: tuple, screen):
         pygame.sprite.Sprite.__init__(self)
@@ -172,6 +174,7 @@ class Bomb(pygame.sprite.Sprite):
 
     def bang(self):
         self.screen.blit(pygame.image.load('images for spidergame//images//bang.png'), self.rect)
+
 
 class Game:
     def __init__(self, size):
@@ -194,7 +197,8 @@ class Game:
         bombStep = 0
         millisecToBang = 0
         start_ticks = pygame.time.get_ticks()
-        timer = 1
+        bot_timer = 1
+        bomb_timer = 1
         damage = 1
         while True:
             screen.blit(BACKGROUND, (0, 0))
@@ -267,14 +271,13 @@ class Game:
                         if collision != 1:
                             pavuk.move(50, 0)
 
-            if seconds >= timer:
+            if seconds >= bot_timer:
                 bot.follow(pavuk)
                 start_ticks = pygame.time.get_ticks()
 
             if pavuk.rect.colliderect(escape.rect):
                 pygame.display.update()
                 escape.win()
-
 
             if pavuk.rect.colliderect(bot.rect):
                 pavuk.remove_live(damage)
@@ -308,13 +311,13 @@ class Game:
 
             if bomb is not None:
                 bomb.draw()
-                millisecToBang+=0.0166
+                millisecToBang += 0.0166
                 if 0.7 < millisecToBang < 1:
                     bomb.bang()
-                if millisecToBang>=1: # взрыв бомбы
+                if millisecToBang >= bomb_timer:  # взрыв бомбы
                     bomb.bang()
-                    bombStep = 0;
-                    millisecToBang = 0;
+                    bombStep = 0
+                    millisecToBang = 0
                     bomb = None
             else:
                 if pavuk.rect.colliderect(pavukpos) != 1:
