@@ -313,9 +313,12 @@ class Game:
                     bomb.bang()
                 if millisecToBang>=1: # взрыв бомбы
                     bomb.bang()
-                    bombStep = 0;
-                    millisecToBang = 0;
+                    bombStep = 0
+                    millisecToBang = 0
+                    if pavuk.rect.colliderect(bomb.rect):  # or pavuk.rect.colliderect(pygame.Rect(bomb.rect.x+50,bomb.rect.y)) or pavuk.rect.colliderect(pygame.Rect(bomb.rect.x-50,bomb.rect.y)) or pavuk.rect.colliderect(pygame.Rect(bomb.rect.x,bomb.rect.y+50)) or pavuk.rect.colliderect(pygame.Rect(bomb.rect.x,bomb.rect.y-50)):
+                        pavuk.remove_live(1);
                     bomb = None
+
             else:
                 if pavuk.rect.colliderect(pavukpos) != 1:
                     bombStep += 1
