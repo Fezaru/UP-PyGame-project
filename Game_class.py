@@ -57,14 +57,6 @@ class Exit(pygame.sprite.Sprite):
         pygame.quit()
 
 
-class Bot(pygame.sprite.Sprite):
-    def __init__(self, xy0: tuple, sizes: tuple, screen):
-        pygame.sprite.Sprite.__init__(self)
-        self.rect = pygame.Rect(xy0, sizes)  # First tuple is position, second is size.
-        self.image = pygame.image.load('images for spidergame//images//bot.png')
-        self.screen = screen  # передаю экран чтобы в функции draw на нем отображать
-
-
 class Player(pygame.sprite.Sprite):
     def __init__(self, xy0: tuple, sizes: tuple, screen):
         pygame.sprite.Sprite.__init__(self)
@@ -103,6 +95,43 @@ class Player(pygame.sprite.Sprite):
             self.screen.blit(self.live_image, [x*i,y])
 
 
+class Bot(pygame.sprite.Sprite):
+    def __init__(self, xy0: tuple, sizes: tuple, screen):
+        pygame.sprite.Sprite.__init__(self)
+        self.rect = pygame.Rect(xy0, sizes)  # First tuple is position, second is size.
+        self.image = pygame.image.load('images for spidergame//images//bot.png')
+        self.screen = screen  # передаю экран чтобы в функции draw на нем отображать
+
+    def move(self, x, y):
+        self.rect.move_ip(x, y)
+
+    def draw(self):
+        self.screen.blit(self.image, self.rect)
+
+    def follow(self, pavuk: Player):
+        x, y = pavuk.rect.x, pavuk.rect.y
+
+        if self.rect.x < x:
+            if self.rect.y < y:
+                self.move(50, 50)
+            elif self.rect.y > y:
+                self.move(50, -50)
+            else:
+                self.move(50, 0)
+        elif self.rect.x > x:
+            if self.rect.y < y:
+                self.move(-50, 50)
+            elif self.rect.y > y:
+                self.move(-50, -50)
+            else:
+                self.move(-50, 0)
+        else:
+            if self.rect.y < y:
+                self.move(0, 50)
+            elif self.rect.y > y:
+                self.move(0, -50)
+
+
 class Wall(pygame.sprite.Sprite):
     def __init__(self, xy0: tuple, sizes: tuple, screen):
         pygame.sprite.Sprite.__init__(self)
@@ -137,13 +166,18 @@ class Game:
         BACKGROUND = pygame.image.load('images for spidergame//images//gameBGfilled.png')
 
         pavuk = Player((150, 150), (50, 50), screen)
+        bot = Bot((0, 250), (50, 50), screen)
         walls = init_walls(screen)
         fences, escape = init_fences(screen)
 
         # bonus = Bonus((50, 50), screen)
         bonusStep = 0
+        start_ticks = pygame.time.get_ticks()
+        timer = 1
         while True:
             screen.blit(BACKGROUND, (0, 0))
+
+            seconds = (pygame.time.get_ticks() - start_ticks) / 1000
 
             pavukpos = pavuk.rect.copy()
 
@@ -211,6 +245,10 @@ class Game:
                         if collision != 1:
                             pavuk.move(50, 0)
 
+            if seconds >= timer:
+                bot.follow(pavuk)
+                start_ticks = pygame.time.get_ticks()
+
             if pavuk.rect.colliderect(escape.rect):
                 pygame.display.update()
                 escape.win()
@@ -240,6 +278,7 @@ class Game:
             for fence in fences:
                 fence.draw()
             pavuk.draw()
+            bot.draw()
             escape.draw()
             pavuk.draw_lives()
             clock.tick(FPS)
