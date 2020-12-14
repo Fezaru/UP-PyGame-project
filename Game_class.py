@@ -54,7 +54,15 @@ class Exit(pygame.sprite.Sprite):
     def win(self):
         tkinter.messagebox.showinfo('Победа!', 'Вы выиграли')
         Menu_class.Menu()
-        pygame.display.quit()
+        pygame.quit()
+
+
+class Bot(pygame.sprite.Sprite):
+    def __init__(self, xy0: tuple, sizes: tuple, screen):
+        pygame.sprite.Sprite.__init__(self)
+        self.rect = pygame.Rect(xy0, sizes)  # First tuple is position, second is size.
+        self.image = pygame.image.load('images for spidergame//images//bot.png')
+        self.screen = screen  # передаю экран чтобы в функции draw на нем отображать
 
 
 class Player(pygame.sprite.Sprite):
