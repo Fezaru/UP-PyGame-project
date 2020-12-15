@@ -174,6 +174,11 @@ class Bomb(pygame.sprite.Sprite):
 
     def bang(self):
         self.screen.blit(pygame.image.load('images for spidergame//images//bang.png'), self.rect)
+        self.screen.blit(pygame.image.load('images for spidergame//images//bang.png'), pygame.Rect(self.rect.x + 50, self.rect.y, 50,  50)) # рисую взрыв крестом
+        self.screen.blit(pygame.image.load('images for spidergame//images//bang.png'),  pygame.Rect(self.rect.x - 50, self.rect.y, 50, 50))
+        self.screen.blit(pygame.image.load('images for spidergame//images//bang.png'),  pygame.Rect(self.rect.x , self.rect.y + 50, 50, 50))
+        self.screen.blit(pygame.image.load('images for spidergame//images//bang.png'),  pygame.Rect(self.rect.x , self.rect.y - 50, 50, 50))
+
 
 
 class Game:
@@ -318,7 +323,11 @@ class Game:
                     bomb.bang()
                     bombStep = 0
                     millisecToBang = 0
+                    if pavuk.rect.colliderect(bomb.rect) or pavuk.rect.colliderect(pygame.Rect(bomb.rect.x+50,bomb.rect.y, 50, 50)) or pavuk.rect.colliderect(pygame.Rect(bomb.rect.x-50,bomb.rect.y,50, 50)) or pavuk.rect.colliderect(pygame.Rect(bomb.rect.x,bomb.rect.y+50,50, 50)) or pavuk.rect.colliderect(pygame.Rect(bomb.rect.x,bomb.rect.y-50,50, 50)):
+                        print(bomb.rect) # дамажу если персонаж во взрывном кресте
+                        pavuk.remove_live(1);
                     bomb = None
+
             else:
                 if pavuk.rect.colliderect(pavukpos) != 1:
                     bombStep += 1
