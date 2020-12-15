@@ -3,7 +3,9 @@ import Settings_class
 import pygame
 import random
 import tkinter.messagebox
+import time
 
+cur_map = 'Map1.txt'
 bonus = None
 bomb = None
 SIZE = None  # возможно потом это будет в сериализованном файле
@@ -14,7 +16,7 @@ def init_fences(screen):
     n = SIZE[0] // 50
     lines = []
     fences = []
-    with open('Map1', 'r') as f:
+    with open(cur_map, 'r') as f:
         for i in range(n):
             lines.append(f.readline().strip('\n'))
     coords = [[] for i in range(n)]
@@ -54,14 +56,27 @@ class Exit(pygame.sprite.Sprite):
         self.screen.blit(self.image, self.rect)
 
     def win(self):
+        global cur_map
+        tkinter.messagebox.showinfo('Победа!', 'Вы выиграли')
+        cur_map = 'Map2.txt'
+        Game((400, 400))
+
+    def win2(self):
+        global cur_map
+        tkinter.messagebox.showinfo('Победа!', 'Вы выиграли')
+        cur_map = 'Map3.txt'
+        Game((500, 500))
+
+    def win3(self):
         tkinter.messagebox.showinfo('Победа!', 'Вы выиграли')
         Menu_class.Menu()
         pygame.quit()
 
     def loss(self):
         tkinter.messagebox.showinfo('Поражение', 'Вы проиграли')
-        Menu_class.Menu()
-        pygame.quit()
+
+    def timeout(self):
+        tkinter.messagebox.showinfo('Поражение', 'Время закончилось')
 
 
 class Player(pygame.sprite.Sprite):
@@ -71,7 +86,12 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load(Settings_class.player_avatar)
         self.screen = screen  # передаю экран чтобы в функции draw на нем отображать
         self.__bonuses = 0
-        self.__lives = 3  # вроде можно в настройках задавать
+        if cur_map == 'Map1.txt':
+            self.__lives = Settings_class.map1_lives
+        elif cur_map == 'Map2.txt':
+            self.__lives = Settings_class.map2_lives
+        elif cur_map == 'Map3.txt':
+            self.__lives = Settings_class.map3_lives
         self.live_image = pygame.image.load('images for spidergame//images//lives.png')
 
     def move(self, x, y):
@@ -202,10 +222,35 @@ class Game:
         bombStep = 0
         millisecToBang = 0
         start_ticks = pygame.time.get_ticks()
-        bot_timer = 1
-        bomb_timer = 1
+        bot_timer = Settings_class.bot_timer
+        bomb_timer = Settings_class.bomb_timer
         damage = 1
+
+        count_time = False
+        if Settings_class.map1_timer is None and Settings_class.map2_timer is None and Settings_class.map3_timer is None:
+            pass
+        else:
+            start = time.time()
+            count_time = True
+
         while True:
+            if count_time:
+                if cur_map == 'Map1.txt':
+                    if time.time() - start >= Settings_class.map1_timer:
+                        escape.timeout()
+                        Menu_class.Menu()
+                        pygame.display.quit()
+                if cur_map == 'Map2.txt':
+                    if time.time() - start >= Settings_class.map2_timer:
+                        escape.timeout()
+                        Menu_class.Menu()
+                        pygame.display.quit()
+                if cur_map == 'Map3.txt':
+                    if time.time() - start >= Settings_class.map3_timer:
+                        escape.timeout()
+                        Menu_class.Menu()
+                        pygame.display.quit()
+
             screen.blit(BACKGROUND, (0, 0))
 
             seconds = (pygame.time.get_ticks() - start_ticks) / 1000
@@ -282,7 +327,12 @@ class Game:
 
             if pavuk.rect.colliderect(escape.rect):
                 pygame.display.update()
-                escape.win()
+                if cur_map == 'Map1.txt':
+                    escape.win()
+                if cur_map == 'Map2.txt':
+                    escape.win2()
+                if cur_map == 'Map3.txt':
+                    escape.win3()
 
             if pavuk.rect.colliderect(bot.rect):
                 pavuk.remove_live(damage)
@@ -317,15 +367,15 @@ class Game:
             if bomb is not None:
                 bomb.draw()
                 millisecToBang += 0.0166
-                if 0.7 < millisecToBang < 1:
+                if bomb_timer < millisecToBang < bomb_timer + 0.3:
                     bomb.bang()
-                if millisecToBang >= bomb_timer:  # взрыв бомбы
+                if millisecToBang >= bomb_timer + 0.3:  # взрыв бомбы
                     bomb.bang()
                     bombStep = 0
                     millisecToBang = 0
                     if pavuk.rect.colliderect(bomb.rect) or pavuk.rect.colliderect(pygame.Rect(bomb.rect.x+50,bomb.rect.y, 50, 50)) or pavuk.rect.colliderect(pygame.Rect(bomb.rect.x-50,bomb.rect.y,50, 50)) or pavuk.rect.colliderect(pygame.Rect(bomb.rect.x,bomb.rect.y+50,50, 50)) or pavuk.rect.colliderect(pygame.Rect(bomb.rect.x,bomb.rect.y-50,50, 50)):
-                        print(bomb.rect) # дамажу если персонаж во взрывном кресте
-                        pavuk.remove_live(1);
+                        print(bomb.rect)  # дамажу если персонаж во взрывном кресте
+                        pavuk.remove_live(1)
                     bomb = None
 
             else:
@@ -355,6 +405,9 @@ class Game:
             if pavuk.get_lives() == 0:
                 pygame.display.update()
                 escape.loss()
+                Menu_class.Menu()
+                pygame.display.quit()
+                break
 
             clock.tick(FPS)
             pygame.display.update()  # Or pygame.display.flip()
