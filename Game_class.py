@@ -1,4 +1,5 @@
 import Menu_class
+import Settings_class
 import pygame
 import random
 import tkinter.messagebox
@@ -67,7 +68,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, xy0: tuple, sizes: tuple, screen):
         pygame.sprite.Sprite.__init__(self)
         self.rect = pygame.Rect(xy0, sizes)  # First tuple is position, second is size.
-        self.image = pygame.image.load('images for spidergame//images//spider.png')
+        self.image = pygame.image.load(Settings_class.player_avatar)
         self.screen = screen  # передаю экран чтобы в функции draw на нем отображать
         self.__bonuses = 0
         self.__lives = 3  # вроде можно в настройках задавать
@@ -107,7 +108,7 @@ class Bot(pygame.sprite.Sprite):
     def __init__(self, xy0: tuple, sizes: tuple, screen):
         pygame.sprite.Sprite.__init__(self)
         self.rect = pygame.Rect(xy0, sizes)  # First tuple is position, second is size.
-        self.image = pygame.image.load('images for spidergame//images//bot.png')
+        self.image = pygame.image.load(Settings_class.bot_avatar)
         self.screen = screen  # передаю экран чтобы в функции draw на нем отображать
 
     def move(self, x, y):
@@ -178,7 +179,6 @@ class Bomb(pygame.sprite.Sprite):
         self.screen.blit(pygame.image.load('images for spidergame//images//bang.png'),  pygame.Rect(self.rect.x - 50, self.rect.y, 50, 50))
         self.screen.blit(pygame.image.load('images for spidergame//images//bang.png'),  pygame.Rect(self.rect.x , self.rect.y + 50, 50, 50))
         self.screen.blit(pygame.image.load('images for spidergame//images//bang.png'),  pygame.Rect(self.rect.x , self.rect.y - 50, 50, 50))
-
 
 
 class Game:

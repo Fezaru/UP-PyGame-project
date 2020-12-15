@@ -1,5 +1,12 @@
 from tkinter import *
 from Option_class import Option
+from tkinter import filedialog
+
+player_avatar = 'images for spidergame//images//spider.png'
+bot_avatar = 'images for spidergame//images//bot.png'
+map1_lives = 3
+map2_lives = 2
+map3_lives = 1
 
 
 class Settings(Toplevel):
@@ -10,13 +17,26 @@ class Settings(Toplevel):
         self.resizable(False, False)
 
         def b1():
-            Option(title='Персонаж')
+            def open_picture():
+                global player_avatar
+                player_avatar = filedialog.askopenfile()
+
+            form = Option(title='Персонаж')
+            form.but1 = Button(form, text='выбрать картинку для персонажа', font='Tahoma 18', width=30, command=open_picture)
+            form.but1.place(relx=0.15, rely=0.4)
 
         def b2():
-            Option(title='Бот')
+            def open_picture():
+                global bot_avatar
+                bot_avatar = filedialog.askopenfile()
+
+            form = Option(title='Бот')
+            form.but1 = Button(form, text='выбрать картинку для бота', font='Tahoma 18', width=30, command=open_picture)
+            form.but1.place(relx=0.15, rely=0.4)
 
         def b3():
-            Option(title='Жизни')
+            form = Option(title='Жизни')
+            form.l1 = Label(form, text='Жизней для уровня 1', font='Tahoma 18,')  # дописать
 
         def b4():
             Option(title='Время прохождения')
